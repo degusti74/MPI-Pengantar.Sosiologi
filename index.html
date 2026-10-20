@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI: Pengantar Sosiologi Kelas X</title>
+    
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['"Fredoka"', 'sans-serif'],
+                        body: ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        sumut: {
+                            white: '#FFFFFF',
+                            yellow: '#FFD700',
+                            green: '#00A859',
+                            red: '#ED1C24',
+                            black: '#1A1A1A',
+                            gray: '#F0F0F0'
+                        }
+                    },
+                    boxShadow: {
+                        'comic': '4px 4px 0px 0px #1A1A1A',
+                        'comic-hover': '2px 2px 0px 0px #1A1A1A',
+                    },
+                    borderRadius: {
+                        'comic': '24px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome & Confetti -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            background-color: #fafafa;
+            background-image: radial-gradient(#1A1A1A 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-attachment: fixed;
+            color: #1A1A1A;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .neo-box {
+            background-color: #FFFFFF;
+            border: 3px solid #1A1A1A;
+            border-radius: 24px;
+            box-shadow: 6px 6px 0px 0px #1A1A1A;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .neo-btn {
+            border: 3px solid #1A1A1A;
+            border-radius: 24px;
+            box-shadow: 4px 4px 0px 0px #1A1A1A;
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+            font-family: "Fredoka", sans-serif;
+            font-weight: 600;
+        }
+
+        .neo-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px #1A1A1A;
+        }
+
+        .ulos-accent {
+            background: repeating-linear-gradient(45deg, #ED1C24, #ED1C24 10px, #FFD700 10px, #FFD700 20px, #1A1A1A 20px, #1A1A1A 30px);
+        }
+
+        /* Flip Card */
+        .flip-card { perspective: 1000px; height: 250px; border-radius: 24px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 24px; border: 3px solid #1A1A1A; box-shadow: 6px 6px 0px 0px #1A1A1A; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; }
+        .flip-card-front { background-color: #FFD700; }
+        .flip-card-back { background-color: #FFFFFF; transform: rotateY(180deg); }
+
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #F0F0F0; border-left: 3px solid #1A1A1A; }
+        ::-webkit-scrollbar-thumb { background: #FFD700; border: 3px solid #1A1A1A; border-radius: 10px; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hide { display: none !important; }
+
+        .sticky-note { border: 2px solid #1A1A1A; box-shadow: 4px 4px 0px 0px #1A1A1A; transition: transform 0.2s, z-index 0s; position: relative; }
+        .sticky-note:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 20; }
+        .delete-btn { position: absolute; top: -12px; right: -12px; background: #ED1C24; color: white; border: 2px solid #1A1A1A; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; opacity: 0; transition: all 0.2s; box-shadow: 2px 2px 0px 0px #1A1A1A; z-index: 30; }
+        .sticky-note:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { transform: scale(1.1); background: #c9141b; }
+        
+        .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #1A1A1A; width: 30px; height: 30px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased font-body pb-20">
+
+    <!-- Audio Manager -->
+    <div class="fixed top-20 right-4 z-50">
+        <button onclick="toggleAudio()" id="btn-audio" class="neo-btn bg-sumut-white p-3 text-sumut-black" title="Nyalakan/Matikan Suara">
+            <i class="fas fa-volume-up text-xl"></i>
+        </button>
+    </div>
+
+    <!-- HEADER -->
+    <header class="fixed top-0 w-full bg-sumut-white z-40 border-b-[3px] border-sumut-black shadow-comic">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-sumut-yellow border-2 border-sumut-black rounded-full flex items-center justify-center font-heading font-bold text-lg shadow-[2px_2px_0_0_#1A1A1A]">
+                    <i class="fas fa-book text-sumut-black"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-lg leading-tight">Sosiologi</h1>
+                    <p class="text-xs font-semibold">SMA Kelas X Fase E</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="global-score-box" class="hidden sm:flex bg-sumut-white border-2 border-sumut-black rounded-full px-4 py-1 text-sm font-bold shadow-[2px_2px_0_0_#1A1A1A] transition-all duration-300">
+                    ⭐ <span id="global-score-value" class="ml-1 mr-1">0</span> Poin
+                </div>
+                <div class="bg-sumut-gray border-2 border-sumut-black rounded-full px-3 py-1 text-xs font-bold cursor-pointer hover:bg-sumut-yellow transition">
+                    MODE MURID <i class="fas fa-exchange-alt ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 min-h-screen">
+        
+        <!-- SECTION: HOME / MENU UTAMA -->
+        <section id="sec-home" class="fade-in">
+            <!-- Hero Banner -->
+            <div class="neo-box bg-sumut-white p-8 sm:p-12 mb-10 relative overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between">
+                <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #FFD700 25%, transparent 25%, transparent 75%, #FFD700 75%, #FFD700), repeating-linear-gradient(45deg, #FFD700 25%, #FFFFFF 25%, #FFFFFF 75%, #FFD700 75%, #FFD700); background-position: 0 0, 20px 20px; background-size: 40px 40px;"></div>
+                <div class="z-10 max-w-2xl">
+                    <h2 class="text-3xl sm:text-5xl font-heading font-bold mb-4 text-sumut-black uppercase tracking-tight">Memahami Masyarakat Lewat Lensa Sosiologi</h2>
+                    <p class="text-sumut-black font-medium mb-8 leading-relaxed text-lg bg-white/80 inline-block p-2 rounded">
+                        Pelajari sejarah kelahiran sosiologi, konsep dasar, paradigma, hingga peran sosiologi sebagai ilmu yang mengkaji realitas kehidupan sosial masyarakat di sekitarmu.
+                    </p><br>
+                    <button onclick="navigateTo('tujuan')" class="neo-btn bg-sumut-green text-white px-10 py-4 text-xl flex items-center justify-center gap-3 mx-auto sm:mx-0 w-full sm:w-auto hover:bg-[#008f4c]">
+                        MULAI BELAJAR <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="hidden sm:block z-10 text-9xl text-sumut-black/10 drop-shadow-xl transform rotate-12">
+                    <i class="fas fa-users-viewfinder"></i>
+                </div>
+            </div>
+
+            <!-- Navigation Grid (3 Kolom Seimbang) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <button onclick="navigateTo('materi')" class="neo-box bg-sumut-green text-sumut-black p-6 text-left hover:scale-[1.02] active:scale-95 transition-transform flex flex-col justify-between h-48">
+                    <div class="w-14 h-14 bg-white border-3 border-sumut-black rounded-full flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#1A1A1A] mb-4"><i class="fas fa-book-open text-sumut-black"></i></div>
+                    <div><h3 class="font-heading font-bold text-xl mb-1 text-white stroke-black" style="-webkit-text-stroke: 1px black;">MODUL INTERAKTIF</h3><p class="text-sm font-semibold text-sumut-black bg-white/80 px-2 py-1 rounded inline-block">Eksplorasi materi & simulasi.</p></div>
+                </button>
+                
+                <button onclick="navigateTo('kuis')" class="neo-box bg-sumut-red text-white p-6 text-left hover:scale-[1.02] active:scale-95 transition-transform flex flex-col justify-between h-48">
+                    <div class="w-14 h-14 bg-white border-3 border-sumut-black rounded-full flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#1A1A1A] mb-4"><i class="fas fa-tasks text-sumut-black"></i></div>
+                    <div><h3 class="font-heading font-bold text-xl mb-1">UJI PEMAHAMAN</h3><p class="text-sm font-medium bg-sumut-black/20 px-2 py-1 rounded inline-block">Kuis pilihan ganda interaktif.</p></div>
+                </button>
+
+                <button onclick="navigateTo('game')" class="neo-box bg-sumut-yellow text-sumut-black p-6 text-left hover:scale-[1.02] active:scale-95 transition-transform flex flex-col justify-between h-48">
+                    <div class="w-14 h-14 bg-white border-3 border-sumut-black rounded-full flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#1A1A1A] mb-4"><i class="fas fa-gamepad text-sumut-black"></i></div>
+                    <div><h3 class="font-heading font-bold text-xl mb-1">MINI GAMES</h3><p class="text-sm font-semibold bg-white/80 px-2 py-1 rounded inline-block">Bermain sambil belajar.</p></div>
+                </button>
+
+                <button onclick="navigateTo('refleksi')" class="neo-box bg-sumut-white text-sumut-black p-6 text-left hover:scale-[1.02] active:scale-95 transition-transform flex flex-col justify-between h-48">
+                    <div class="w-14 h-14 bg-sumut-yellow border-3 border-sumut-black rounded-full flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#1A1A1A] mb-4"><i class="fas fa-comment-dots text-sumut-black"></i></div>
+                    <div><h3 class="font-heading font-bold text-xl mb-1">PAPAN REFLEKSI</h3><p class="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 border border-gray-300 rounded inline-block">Berbagi kesan & pesan.</p></div>
+                </button>
+
+                <button onclick="navigateTo('pengembang')" class="neo-box bg-sumut-black text-white p-6 text-left hover:scale-[1.02] active:scale-95 transition-transform flex flex-col justify-between h-48">
+                    <div class="w-14 h-14 bg-sumut-white border-3 border-sumut-black rounded-full flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#FFFFFF] mb-4"><i class="fas fa-id-badge text-sumut-black"></i></div>
+                    <div><h3 class="font-heading font-bold text-xl mb-1">PENGEMBANG</h3><p class="text-sm font-medium bg-white/20 px-2 py-1 rounded inline-block">Profil pembuat.</p></div>
+                </button>
+
+                <button onclick="navigateTo('referensi')" class="neo-box bg-sumut-white text-sumut-black p-6 text-left hover:scale-[1.02] active:scale-95 transition-transform flex flex-col justify-between h-48">
+                    <div class="w-14 h-14 bg-sumut-green border-3 border-sumut-black rounded-full flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#1A1A1A] mb-4"><i class="fas fa-book-journal-whills text-white"></i></div>
+                    <div><h3 class="font-heading font-bold text-xl mb-1">REFERENSI</h3><p class="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 border border-gray-300 rounded inline-block">Daftar pustaka.</p></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION: TUJUAN & PEMANTIK -->
+        <section id="sec-tujuan" class="hide fade-in">
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                <h2 class="text-3xl font-heading font-bold uppercase">Tujuan & Pemantik</h2>
+            </div>
+
+            <!-- Pemantik -->
+            <div class="neo-box bg-sumut-gray p-8 mb-12">
+                <h3 class="text-2xl font-heading font-bold mb-6 text-center border-b-4 border-sumut-black pb-4 inline-block mx-auto flex justify-center">PERTANYAAN PEMANTIK (KETUK KARTU!)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="flip-card" onclick="flipCard(this); playClickSound();">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front"><i class="fas fa-question-circle text-5xl mb-4 text-sumut-black"></i><h4 class="text-xl font-heading font-bold px-4">Mengapa Sosiologi Baru Muncul di Abad ke-19?</h4><p class="text-sm font-semibold mt-4 bg-sumut-white px-4 py-1 border-2 border-sumut-black rounded-full">Ketuk untuk jawaban</p></div>
+                            <div class="flip-card-back"><i class="fas fa-lightbulb text-4xl text-sumut-yellow mb-3 stroke-black" style="-webkit-text-stroke: 2px black;"></i><p class="text-base font-semibold px-2">Karena goncangan hebat di Eropa akibat <strong>Revolusi Industri</strong> dan <strong>Prancis</strong> yang menghancurkan tatanan masyarakat lama.</p></div>
+                        </div>
+                    </div>
+                    <div class="flip-card" onclick="flipCard(this); playClickSound();">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front"><i class="fas fa-users text-5xl mb-4 text-sumut-black"></i><h4 class="text-xl font-heading font-bold px-4">Apakah semua tindakan kita adalah "Tindakan Sosial"?</h4><p class="text-sm font-semibold mt-4 bg-sumut-white px-4 py-1 border-2 border-sumut-black rounded-full">Ketuk untuk jawaban</p></div>
+                            <div class="flip-card-back"><i class="fas fa-user-check text-4xl text-sumut-green mb-3 stroke-black" style="-webkit-text-stroke: 2px black;"></i><p class="text-base font-semibold px-2"><strong>Tidak!</strong> Menurut Max Weber, disebut tindakan sosial hanya jika mempertimbangkan perilaku orang lain.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tujuan -->
+            <div class="neo-box bg-sumut-white p-8 mb-8 border-t-8 border-t-sumut-yellow">
+                <h3 class="font-heading font-bold text-xl mb-4"><i class="fas fa-bullseye text-sumut-red mr-2"></i> Tujuan Pembelajaran</h3>
+                <ol class="list-decimal pl-5 space-y-2 font-medium">
+                    <li>Menyimpulkan sejarah sosiologi sebagai ilmu sosial.</li>
+                    <li>Memerinci beberapa konsep dan teori sosiologi.</li>
+                    <li>Menjelaskan beberapa paradigma dalam sosiologi.</li>
+                    <li>Menjelaskan fungsi dan peran sosiologi mengkaji masyarakat.</li>
+                </ol>
+            </div>
+            <div class="text-center mt-10"><button onclick="navigateTo('materi')" class="neo-btn bg-sumut-red text-white px-8 py-3 text-lg hover:bg-[#c9141b]">LANJUT KE MATERI <i class="fas fa-arrow-right ml-2"></i></button></div>
+        </section>
+
+        <!-- SECTION: MATERI BELAJAR -->
+        <section id="sec-materi" class="hide fade-in">
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                <h2 class="text-3xl font-heading font-bold uppercase">Modul Materi Interaktif</h2>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="w-full md:w-1/4">
+                    <div class="neo-box bg-sumut-yellow p-4 sticky top-24">
+                        <h3 class="font-heading font-bold text-xl mb-4 text-sumut-black border-b-[3px] border-sumut-black pb-2">TOPIK MATERI</h3>
+                        <ul class="space-y-3">
+                            <li><button onclick="switchTab('tab-sejarah', this)" class="tab-btn w-full text-left px-4 py-3 neo-btn bg-sumut-white text-sumut-black shadow-[2px_2px_0_0_#1A1A1A]">1. Sejarah Tokoh</button></li>
+                            <li><button onclick="switchTab('tab-konsep', this)" class="tab-btn w-full text-left px-4 py-3 border-2 border-transparent font-heading font-bold text-sumut-black hover:bg-white/50 rounded-xl transition">2. Sifat Ilmu</button></li>
+                            <li><button onclick="switchTab('tab-paradigma', this)" class="tab-btn w-full text-left px-4 py-3 border-2 border-transparent font-heading font-bold text-sumut-black hover:bg-white/50 rounded-xl transition">3. Paradigma Ganda</button></li>
+                            <li><button onclick="switchTab('tab-fungsi', this)" class="tab-btn w-full text-left px-4 py-3 border-2 border-transparent font-heading font-bold text-sumut-black hover:bg-white/50 rounded-xl transition">4. Fungsi & Peran</button></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-3/4 neo-box p-6 sm:p-10 min-h-[500px]">
+                    <!-- TAB 1: Sejarah -->
+                    <div id="tab-sejarah" class="tab-content fade-in">
+                        <h2 class="text-3xl font-heading font-bold text-sumut-black mb-4 uppercase border-b-4 border-sumut-red pb-2 inline-block">Sejarah & Tokoh</h2>
+                        <p class="text-lg font-medium mb-6">Sosiologi lahir sebagai respons hancurnya tatanan masyarakat agraris akibat <strong>Revolusi Industri</strong> dan <strong>Revolusi Prancis</strong>.</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 my-6">
+                            <div class="neo-box bg-sumut-white p-5 relative overflow-hidden border-t-8 border-t-sumut-yellow">
+                                <span class="absolute top-0 right-0 bg-sumut-red text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg border-l-2 border-b-2 border-sumut-black">DUNIA</span>
+                                <h4 class="font-heading font-bold text-xl mb-1">Auguste Comte</h4>
+                                <div class="inline-block bg-sumut-black text-white text-xs px-2 py-1 rounded font-bold mb-2">BAPAK SOSIOLOGI</div>
+                                <p class="text-sm font-medium">Filsuf Prancis pencipta istilah sosiologi. Menyarankan penelitian masyarakat ditingkatkan menjadi ilmu tersendiri.</p>
+                            </div>
+                            <div class="neo-box bg-sumut-white p-5 relative overflow-hidden border-t-8 border-t-sumut-green">
+                                <span class="absolute top-0 right-0 bg-sumut-red text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg border-l-2 border-b-2 border-sumut-black">DUNIA</span>
+                                <h4 class="font-heading font-bold text-xl mb-1">Emile Durkheim</h4>
+                                <div class="inline-block bg-sumut-black text-white text-xs px-2 py-1 rounded font-bold mb-2">FAKTA SOSIAL</div>
+                                <p class="text-sm font-medium">Mengembangkan metodologi via buku <em>The Rules of Sociological Method</em>. Objek sosiologi adalah 'Fakta Sosial'.</p>
+                            </div>
+                            <div class="neo-box bg-sumut-white p-5 relative overflow-hidden border-t-8 border-t-sumut-red">
+                                <span class="absolute top-0 right-0 bg-sumut-red text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg border-l-2 border-b-2 border-sumut-black">DUNIA</span>
+                                <h4 class="font-heading font-bold text-xl mb-1">Max Weber</h4>
+                                <div class="inline-block bg-sumut-black text-white text-xs px-2 py-1 rounded font-bold mb-2">TINDAKAN SOSIAL</div>
+                                <p class="text-sm font-medium">Ide/nilai penting dalam perubahan. Pokok kajian sosiologi adalah tindakan yang mempertimbangkan perilaku orang lain.</p>
+                            </div>
+                            <div class="neo-box bg-sumut-white p-5 relative overflow-hidden border-t-8 border-t-blue-500">
+                                <div class="absolute top-0 left-0 w-full h-2 ulos-accent border-b-2 border-sumut-black"></div>
+                                <span class="absolute top-2 right-0 bg-sumut-green text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg border-l-2 border-b-2 border-sumut-black">INDONESIA</span>
+                                <h4 class="font-heading font-bold text-xl mb-1 mt-2">Selo Soemardjan</h4>
+                                <div class="inline-block bg-sumut-black text-white text-xs px-2 py-1 rounded font-bold mb-2">BAPAK SOSIOLOGI INDO</div>
+                                <p class="text-sm font-medium">Pendiri FISIP UI. Berperan besar mengembangkan sosiologi di Indonesia pasca proklamasi (karya: <em>Social Changes in Yogyakarta</em>).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Konsep -->
+                    <div id="tab-konsep" class="tab-content hide fade-in">
+                        <h2 class="text-3xl font-heading font-bold text-sumut-black mb-4 uppercase border-b-4 border-sumut-green pb-2 inline-block">4 Sifat Ilmu</h2>
+                        <p class="text-lg font-medium mb-6">Sosiologi adalah ilmu yang mempelajari masyarakat dengan 4 sifat utama:</p>
+                        
+                        <div class="space-y-4">
+                            <div class="neo-box p-4 bg-sumut-gray flex flex-col sm:flex-row gap-4 items-center">
+                                <div class="w-full sm:w-1/4 text-center"><h3 class="font-heading font-bold text-2xl text-sumut-green stroke-black" style="-webkit-text-stroke: 1px black;">EMPIRIS</h3></div>
+                                <div class="w-full sm:w-3/4">
+                                    <p class="font-bold">Berdasarkan observasi fakta nyata.</p>
+                                    <p class="text-sm mt-1 bg-white p-2 rounded border border-gray-300"><em>Contoh:</em> Meneliti geng motor dengan terjun langsung mewawancarai mereka di lapangan, bukan menebak-nebak.</p>
+                                </div>
+                            </div>
+                            <div class="neo-box p-4 bg-sumut-gray flex flex-col sm:flex-row gap-4 items-center">
+                                <div class="w-full sm:w-1/4 text-center"><h3 class="font-heading font-bold text-2xl text-sumut-yellow stroke-black" style="-webkit-text-stroke: 1px black;">TEORETIS</h3></div>
+                                <div class="w-full sm:w-3/4">
+                                    <p class="font-bold">Menyusun abstraksi logis dari observasi.</p>
+                                    <p class="text-sm mt-1 bg-white p-2 rounded border border-gray-300"><em>Contoh:</em> Dari data lapangan, sosiolog menyimpulkan (teori) bahwa tawuran terjadi karena kurangnya fasilitas ruang publik yang positif.</p>
+                                </div>
+                            </div>
+                            <div class="neo-box p-4 bg-sumut-gray flex flex-col sm:flex-row gap-4 items-center">
+                                <div class="w-full sm:w-1/4 text-center"><h3 class="font-heading font-bold text-2xl text-sumut-red stroke-black" style="-webkit-text-stroke: 1px black;">KUMULATIF</h3></div>
+                                <div class="w-full sm:w-3/4">
+                                    <p class="font-bold">Memperbaiki/memperluas teori lama.</p>
+                                    <p class="text-sm mt-1 bg-white p-2 rounded border border-gray-300"><em>Contoh:</em> Teori evolusi biologi Darwin diperluas oleh Herbert Spencer untuk menjelaskan evolusi sosial masyarakat.</p>
+                                </div>
+                            </div>
+                            <div class="neo-box p-4 bg-sumut-gray flex flex-col sm:flex-row gap-4 items-center">
+                                <div class="w-full sm:w-1/4 text-center"><h3 class="font-heading font-bold text-2xl text-white stroke-black" style="-webkit-text-stroke: 1px black;">NONETIS</h3></div>
+                                <div class="w-full sm:w-3/4">
+                                    <p class="font-bold">Menjelaskan fakta, bukan menghakimi baik/buruk.</p>
+                                    <p class="text-sm mt-1 bg-white p-2 rounded border border-gray-300"><em>Contoh:</em> Saat meneliti korupsi, sosiolog tidak fokus memarahi pelakunya, melainkan mencari tahu secara objektif sistem apa yang gagal.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Paradigma & AI -->
+                    <div id="tab-paradigma" class="tab-content hide fade-in">
+                        <h2 class="text-3xl font-heading font-bold text-sumut-black mb-4 uppercase border-b-4 border-sumut-yellow pb-2 inline-block">Paradigma Ganda</h2>
+                        <p class="text-base font-medium mb-6">Menurut Ritzer, sosiologi punya 3 sudut pandang (paradigma) berbeda dalam melihat masyarakat.</p>
+
+                        <div class="neo-box bg-sumut-gray p-6 text-center">
+                            <h3 class="font-heading font-bold text-2xl mb-3 text-sumut-black"><i class="fas fa-robot text-sumut-red"></i> SIMULATOR AI PARADIGMA</h3>
+                            
+                            <div class="mb-6 flex flex-col items-center gap-2">
+                                <label class="font-bold text-sm uppercase tracking-wider block mb-1">Tambah Kasus Kontekstual:</label>
+                                <div class="flex flex-col sm:flex-row w-full max-w-lg gap-2">
+                                    <input type="text" id="input-kasus" class="flex-1 bg-white border-2 border-sumut-black rounded-full px-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-sumut-yellow" placeholder="Cth: Tren dance K-Pop di sekolah">
+                                    <button onclick="analyzeWithAI()" class="neo-btn bg-sumut-black text-white px-6 py-2">Analisis! <i class="fas fa-magic text-sumut-yellow"></i></button>
+                                </div>
+                            </div>
+
+                            <p class="text-sm font-bold text-sumut-black mb-6 bg-sumut-yellow px-4 py-2 border-2 border-sumut-black rounded-full inline-block shadow-[2px_2px_0_0_#1A1A1A]">
+                                Kasus Aktif: <strong id="display-kasus" class="underline text-lg">"Mengapa siswa memakai seragam?"</strong>
+                            </p>
+                            
+                            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                                <button onclick="showAIData('fakta', this)" class="sim-btn neo-btn bg-white text-sumut-black px-5 py-3 hover:bg-gray-100 transition">Fakta Sosial</button>
+                                <button onclick="showAIData('definisi', this)" class="sim-btn neo-btn bg-white text-sumut-black px-5 py-3 hover:bg-gray-100 transition">Definisi Sosial</button>
+                                <button onclick="showAIData('perilaku', this)" class="sim-btn neo-btn bg-white text-sumut-black px-5 py-3 hover:bg-gray-100 transition">Perilaku Sosial</button>
+                            </div>
+
+                            <div id="sim-output" class="min-h-[140px] bg-white rounded-2xl p-6 border-[3px] border-sumut-black flex items-center justify-center transition-all duration-300 shadow-[inset_4px_4px_0_0_rgba(0,0,0,0.05)] text-left">
+                                <p class="font-semibold text-gray-500 text-center w-full">Ketik kasus di atas, lalu klik salah satu tombol kapsul untuk melihat sudut pandang sosiologi!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: Fungsi -->
+                    <div id="tab-fungsi" class="tab-content hide fade-in">
+                        <h2 class="text-3xl font-heading font-bold text-sumut-black mb-6 uppercase border-b-4 border-blue-500 pb-2 inline-block">Fungsi & Peran Sosiolog</h2>
+                        
+                        <div class="grid sm:grid-cols-2 gap-8">
+                            <div class="neo-box bg-sumut-white p-6 border-t-8 border-t-blue-500">
+                                <h3 class="font-heading font-bold text-xl mb-4">Fungsi Ilmu</h3>
+                                <ul class="space-y-4 text-sm font-medium">
+                                    <li class="flex gap-3 items-start"><i class="fas fa-check-square text-sumut-green text-xl mt-1"></i> <span><strong>Pembangunan:</strong> Perencanaan & evaluasi.</span></li>
+                                    <li class="flex gap-3 items-start"><i class="fas fa-check-square text-sumut-green text-xl mt-1"></i> <span><strong>Penelitian:</strong> Basis data pemecahan masalah.</span></li>
+                                    <li class="flex gap-3 items-start"><i class="fas fa-check-square text-sumut-green text-xl mt-1"></i> <span><strong>Advokasi:</strong> Basis isu publik/masyarakat pinggiran.</span></li>
+                                </ul>
+                            </div>
+                            <div class="neo-box bg-sumut-white p-6 border-t-8 border-t-sumut-red">
+                                <h3 class="font-heading font-bold text-xl mb-4">Peran Sosiolog</h3>
+                                <ul class="space-y-4 text-sm font-medium">
+                                    <li class="flex gap-3 items-start"><i class="fas fa-star text-sumut-yellow text-xl mt-1 stroke-black" style="-webkit-text-stroke: 1px black;"></i> <span><strong>Ahli Riset:</strong> Cari data objektif ilmiah.</span></li>
+                                    <li class="flex gap-3 items-start"><i class="fas fa-star text-sumut-yellow text-xl mt-1 stroke-black" style="-webkit-text-stroke: 1px black;"></i> <span><strong>Konsultan:</strong> Prediksi dampak kebijakan sosial.</span></li>
+                                    <li class="flex gap-3 items-start"><i class="fas fa-star text-sumut-yellow text-xl mt-1 stroke-black" style="-webkit-text-stroke: 1px black;"></i> <span><strong>Praktisi/Guru:</strong> Terjun ke lapangan & mengajar.</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PENGEMBANG -->
+        <section id="sec-pengembang" class="hide fade-in">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center gap-4 mb-8">
+                    <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                    <h2 class="text-3xl font-heading font-bold uppercase">Profil Pengembang</h2>
+                </div>
+                <div class="flex flex-col md:flex-row gap-8 neo-box bg-sumut-gray p-8 sm:p-12">
+                    <div class="w-40 h-40 sm:w-48 sm:h-48 shrink-0 bg-sumut-white border-4 border-sumut-black rounded-full flex items-center justify-center shadow-[4px_4px_0_0_#1A1A1A] overflow-hidden mx-auto md:mx-0">
+                        <img src="https://drive.google.com/thumbnail?id=1ffJzV3b6pEkx8B3Yi_IP8LN9UwIQ3KHc&sz=w800" alt="Gusti Dewi Monalisa R" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/ED1C24/FFFFFF?text=FOTO+PROFIL'">
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="font-heading font-bold text-2xl sm:text-3xl text-sumut-black mb-3">Gusti Dewi Monalisa R, S.Sos.</h3>
+                        <ul class="text-base font-bold text-gray-700 mb-6 space-y-2">
+                            <li><i class="fas fa-school w-6 text-sumut-red"></i> SMAN 1 BP Mandoge</li>
+                            <li><i class="fas fa-book-open w-6 text-sumut-green"></i> Mata Pelajaran Sosiologi</li>
+                            <li><i class="fas fa-envelope w-6 text-blue-500"></i> gustidewimonalisa74@gmail.com</li>
+                        </ul>
+                        <div class="text-sm bg-white p-5 rounded-2xl border-[3px] border-sumut-black shadow-[4px_4px_0_0_#1A1A1A] text-left">
+                            <p class="font-medium mb-4 italic text-gray-800 text-base">"Hidup adalah sebuah perjalanan tanpa henti untuk terus meng-upgrade diri. Tidak ada kata terlambat untuk memulai, karena setiap proses memiliki indahnya masing-masing."</p>
+                            <ol class="list-none space-y-2 font-bold text-sumut-black text-base">
+                                <li>📚 BELAJAR tanpa henti.</li>
+                                <li>🌱 BERTUMBUH tanpa batas.</li>
+                                <li>🛠️ BERKARYA tanpa ragu.</li>
+                                <li>🤲 BERBAGI tanpa pamrih.</li>
+                            </ol>
+                            <p class="font-bold mt-4 text-sumut-red text-lg">Semangat berproses dan menebar manfaat! 🔥</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: REFERENSI -->
+        <section id="sec-referensi" class="hide fade-in">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center gap-4 mb-8">
+                    <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                    <h2 class="text-3xl font-heading font-bold uppercase">Daftar Pustaka</h2>
+                </div>
+                <div class="neo-box bg-white p-8 sm:p-12">
+                    <div class="mb-8">
+                        <h3 class="font-heading font-bold text-2xl mb-4 text-sumut-black border-b-4 border-sumut-green pb-2 inline-block"><i class="fas fa-book-open text-sumut-green mr-2"></i> Sumber Materi</h3>
+                        <p class="font-medium text-gray-800 bg-sumut-gray p-5 border-[3px] border-sumut-black rounded-2xl text-lg shadow-[2px_2px_0_0_#1A1A1A]">
+                            Maryati, Kun, Juju Surywati, dan Nina R. Suminar. 2022. <em>IPS Sosiologi untuk SMA/MA Kelas X</em>. Erlangga.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-2xl mb-4 text-sumut-black border-b-4 border-sumut-red pb-2 inline-block"><i class="fas fa-paint-brush text-sumut-red mr-2"></i> Sumber Aset Visual dan Audio</h3>
+                        <p class="font-medium text-gray-800 bg-sumut-gray p-5 border-[3px] border-sumut-black rounded-2xl text-lg shadow-[2px_2px_0_0_#1A1A1A]">
+                            Seluruh aset visual dan audio dalam MPI ini dibuat menggunakan teknologi Artificial Intelligence (AI) yaitu Gemini.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: KUIS INTERAKTIF -->
+        <section id="sec-kuis" class="hide fade-in">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-8">
+                    <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                    <h2 class="text-3xl font-heading font-bold uppercase hidden sm:block">Uji Pemahaman</h2>
+                    <div class="w-10 h-10"></div>
+                </div>
+
+                <div id="quiz-container" class="neo-box bg-sumut-white p-8 relative border-t-8 border-t-sumut-red">
+                    <div id="quiz-header" class="flex justify-between items-center mb-8 border-b-[3px] border-sumut-black pb-4">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span id="quiz-progress-text" class="font-heading font-bold text-lg whitespace-nowrap">Soal 1/20</span>
+                            <div class="h-5 bg-sumut-gray border-2 border-sumut-black rounded-full flex-1 max-w-[300px] overflow-hidden">
+                                <div id="quiz-progress-bar" class="h-full bg-sumut-green w-5 border-r-2 border-sumut-black transition-all"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-body" class="min-h-[300px]">
+                        <div id="quiz-badge-hots" class="hidden inline-block bg-sumut-red text-white px-3 py-1 rounded-full text-xs font-bold border-2 border-sumut-black mb-4 shadow-[2px_2px_0_0_#1A1A1A]">HOTS 🔥</div>
+                        <h3 id="question-text" class="text-xl font-medium mb-6 leading-relaxed">Pertanyaan akan muncul di sini...</h3>
+                        <div id="options-container" class="space-y-3">
+                            <!-- Options JS -->
+                        </div>
+                    </div>
+
+                    <div id="quiz-feedback" class="mt-6 p-4 border-2 border-sumut-black rounded-xl hidden text-lg font-bold text-center shadow-[4px_4px_0_0_#1A1A1A]"></div>
+                    <div id="quiz-footer" class="mt-8 flex justify-end">
+                        <button id="btn-next" onclick="nextQuestion()" class="neo-btn bg-sumut-black text-white px-8 py-3 text-lg hidden">Lanjut <i class="fas fa-chevron-right ml-2"></i></button>
+                    </div>
+                </div>
+
+                <div id="result-container" class="neo-box bg-sumut-white p-12 text-center hidden border-t-8 border-t-sumut-green">
+                    <i class="fas fa-trophy text-8xl text-sumut-yellow mb-6 drop-shadow-md"></i>
+                    <h2 class="text-4xl font-heading font-bold mb-2 uppercase">Kuis Selesai!</h2>
+                    <p class="font-semibold text-lg mb-6">Skor Akhir Uji Pemahaman:</p>
+                    <div class="text-7xl font-heading font-extrabold text-sumut-red mb-8 stroke-black drop-shadow-[4px_4px_0_#1A1A1A]" id="final-score" style="-webkit-text-stroke: 2px #1A1A1A;">100</div>
+                    <div class="flex justify-center gap-4 flex-wrap">
+                        <button onclick="resetQuiz()" class="neo-btn bg-sumut-white text-sumut-black px-8 py-3"><i class="fas fa-redo"></i> Coba Lagi</button>
+                        <button onclick="navigateTo('game')" class="neo-btn bg-sumut-green text-white px-8 py-3">Mini Games <i class="fas fa-gamepad ml-1"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: MINI GAMES (Sorting) -->
+        <section id="sec-game" class="hide fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                <h2 class="text-3xl font-heading font-bold uppercase hidden sm:block">Klasifikasi Sosiologi</h2>
+                <div class="bg-sumut-black text-white px-4 py-2 rounded-full font-bold text-sm shadow-[2px_2px_0_0_#1A1A1A]" id="game-level-indicator">LEVEL 1</div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto neo-box bg-sumut-gray p-6 sm:p-10">
+                <h3 id="game-instruction" class="text-center font-bold text-lg mb-6 bg-white p-3 border-2 border-sumut-black rounded-xl inline-block shadow-[2px_2px_0_0_#1A1A1A]">
+                    Ketuk label tokoh di bawah, lalu ketuk kotak asalnya!
+                </h3>
+
+                <!-- Drop Zones -->
+                <div class="grid grid-cols-2 gap-6 mb-10">
+                    <div id="zone-1" onclick="dropToZone('Z1')" class="bg-white border-4 border-dashed border-sumut-red rounded-3xl p-4 min-h-[200px] flex flex-col items-center cursor-pointer transition relative hover:bg-red-50">
+                        <div id="label-zone-1" class="absolute -top-5 bg-sumut-red text-white border-[3px] border-sumut-black font-heading font-bold px-6 py-2 rounded-full shadow-[2px_2px_0_0_#1A1A1A]">ZONA 1</div>
+                        <div id="list-zone-1" class="flex flex-wrap gap-2 justify-center w-full mt-8"></div>
+                    </div>
+                    <div id="zone-2" onclick="dropToZone('Z2')" class="bg-white border-4 border-dashed border-sumut-green rounded-3xl p-4 min-h-[200px] flex flex-col items-center cursor-pointer transition relative hover:bg-green-50">
+                        <div id="label-zone-2" class="absolute -top-5 bg-sumut-green text-white border-[3px] border-sumut-black font-heading font-bold px-6 py-2 rounded-full shadow-[2px_2px_0_0_#1A1A1A]">ZONA 2</div>
+                        <div id="list-zone-2" class="flex flex-wrap gap-2 justify-center w-full mt-8"></div>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="bg-white rounded-3xl p-6 border-[3px] border-sumut-black shadow-[inset_4px_4px_0_0_rgba(0,0,0,0.05)] text-center">
+                    <p class="text-sm font-bold text-gray-500 mb-4 border-b-2 border-gray-200 pb-2 inline-block">DAFTAR KARTU (PILIH SATU)</p>
+                    <div id="game-items" class="flex flex-wrap justify-center gap-4"></div>
+                </div>
+
+                <div id="game-feedback" class="mt-8 text-center font-heading font-bold text-2xl min-h-[40px]"></div>
+                
+                <div class="text-center mt-6">
+                    <button id="btn-next-level" onclick="nextLevelGame()" class="neo-btn bg-sumut-black text-white px-8 py-3 text-lg hidden">LANJUT LEVEL 2 <i class="fas fa-forward ml-2"></i></button>
+                    <button id="btn-reset-game" onclick="initGameLevel(1)" class="neo-btn bg-sumut-white text-sumut-black px-6 py-2 text-sm hidden">Ulangi Permainan</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: REFLEKSI -->
+        <section id="sec-refleksi" class="hide fade-in">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex items-center gap-4 mb-8">
+                    <button onclick="navigateTo('home')" class="neo-btn bg-sumut-white p-3 px-5 text-sumut-black hover:bg-sumut-gray"><i class="fas fa-arrow-left"></i> Menu</button>
+                    <h2 class="text-3xl font-heading font-bold uppercase">Papan Mading Refleksi</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <div class="neo-box bg-white p-6">
+                            <h3 class="font-heading font-bold text-xl mb-4 border-b-4 border-sumut-black pb-2 inline-block">Isi Kartu Refleksi</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Nama / Inisial</label>
+                                    <input type="text" id="ref-name" class="w-full bg-sumut-gray border-2 border-sumut-black rounded-xl px-4 py-3 focus:bg-white" placeholder="Cth: Budi">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Apa satu hal baru yang Ananda pelajari hari ini?</label>
+                                    <textarea id="ref-msg" rows="4" class="w-full bg-sumut-gray border-2 border-sumut-black rounded-xl px-4 py-3 focus:bg-white" placeholder="Ternyata sosiologi itu..."></textarea>
+                                </div>
+                                <button onclick="addRefleksi()" class="w-full neo-btn bg-sumut-red text-white py-3 text-lg mt-2">TEMPEL DI PAPAN 📌</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <div class="neo-box bg-amber-700/90 p-8 min-h-[500px] border-[6px] border-[#4e342e] relative" style="background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 20px, transparent 20px, transparent 40px);">
+                            <div id="board-area" class="flex flex-wrap gap-6 items-start content-start relative">
+                                <!-- Catatan Pembuka dari Guru (Sengaja dikunci dan tidak diberi tombol hapus agar permanen) -->
+                                <div class="sticky-note bg-sumut-yellow p-5 rounded-sm w-48 font-body">
+                                    <div class="text-xs font-bold border-b-2 border-sumut-black/20 pb-2 mb-3 text-sumut-black flex justify-between items-center">
+                                        <span class="truncate">Guru Sosiologi</span> <span class="text-lg">👩‍🏫</span>
+                                    </div>
+                                    <p class="text-sm font-medium leading-snug">Sosiologi menuntut kita berpikir kritis. Bagikan hal baru yang kamu pelajari!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="neo-box border-t-[3px] border-sumut-black mt-12 py-6 text-center text-gray-500 text-sm mx-4 mb-4 font-bold bg-white rounded-none border-x-0 border-b-0 shadow-none">
+        <p>&copy; bumonamengajar | 2026</p>
+    </footer>
+
+    <script>
+        // --- AUDIO ---
+        let audioCtx;
+        let audioEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('btn-audio');
+            if(audioEnabled) { btn.innerHTML = '<i class="fas fa-volume-up text-xl"></i>'; playClickSound(); }
+            else { btn.innerHTML = '<i class="fas fa-volume-mute text-xl text-gray-400"></i>'; }
+        }
+        function playTone(freq, type, dur) {
+            if (!audioEnabled) return;
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+            osc.stop(audioCtx.currentTime + dur);
+        }
+        function playClickSound() { playTone(600, 'sine', 0.1); }
+        function playCorrectSound() { playTone(800, 'triangle', 0.1); setTimeout(() => playTone(1200, 'triangle', 0.2), 100); }
+        function playWrongSound() { playTone(300, 'sawtooth', 0.3); }
+        function playWinSound() { playTone(500, 'square', 0.1); setTimeout(() => playTone(700, 'square', 0.1), 150); setTimeout(() => playTone(900, 'square', 0.3), 300); }
+
+        // --- GLOBAL SCORE ---
+        let globalScore = 0;
+        function addGlobalScore(points) {
+            globalScore += points;
+            const scoreVal = document.getElementById('global-score-value');
+            const scoreBox = document.getElementById('global-score-box');
+            if(scoreVal && scoreBox) {
+                scoreVal.innerText = globalScore;
+                scoreBox.classList.add('bg-sumut-yellow', 'scale-110');
+                setTimeout(() => scoreBox.classList.remove('bg-sumut-yellow', 'scale-110'), 300);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function navigateTo(sectionId) {
+            playClickSound();
+            document.querySelectorAll('section').forEach(sec => { sec.classList.add('hide'); sec.classList.remove('fade-in'); });
+            const target = document.getElementById('sec-' + sectionId);
+            if(target) { target.classList.remove('hide'); void target.offsetWidth; target.classList.add('fade-in'); }
+            window.scrollTo(0,0);
+        }
+        function flipCard(el) { el.classList.toggle('flipped'); }
+        function switchTab(tabId, btn) {
+            playClickSound();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hide'));
+            document.querySelectorAll('.tab-btn').forEach(b => { b.className = 'tab-btn w-full text-left px-4 py-3 border-2 border-transparent font-heading font-bold text-sumut-black hover:bg-white/50 rounded-xl transition'; });
+            btn.className = 'tab-btn w-full text-left px-4 py-3 neo-btn bg-sumut-white text-sumut-black shadow-[2px_2px_0_0_#1A1A1A]';
+            document.getElementById(tabId).classList.remove('hide');
+        }
+
+        // --- AI SIMULATOR ---
+        let currentAIData = {
+            fakta: "Siswa memakai seragam karena ada aturan sekolah (struktur) yang memaksa dari luar. Melanggar = Hukuman.",
+            definisi: "Siswa memakai seragam karena memaknainya sebagai identitas kebanggaan, dan mempertimbangkan teman-temannya.",
+            perilaku: "Siswa patuh karena lingkungan memberi pujian/nilai (reward), bukan karena kesadaran penuh."
+        };
+
+        let simulatorPointsAwarded = false;
+
+        function analyzeWithAI() {
+            const input = document.getElementById('input-kasus').value.trim();
+            if(!input) { alert("Tolong ketikkan kasus terlebih dahulu."); return; }
+            playClickSound();
+            
+            // Tambahkan poin jika murid baru pertama kali mencoba simulator AI
+            if (!simulatorPointsAwarded) {
+                addGlobalScore(30);
+                simulatorPointsAwarded = true;
+            }
+
+            const out = document.getElementById('sim-output');
+            document.getElementById('display-kasus').innerText = `"${input}"`;
+            out.innerHTML = '<div class="flex flex-col items-center"><div class="loader mb-2"></div><p class="font-bold text-sm text-gray-500">Menganalisis studi kasus secara kritis...</p></div>';
+
+            // Logika Cerdas Internal (Menggantikan API Eksternal agar selalu Tajam & Tidak Offline)
+            setTimeout(() => {
+                const lowerInput = input.toLowerCase();
+                let fakta, definisi, perilaku;
+
+                if (lowerInput.includes("k-pop") || lowerInput.includes("fashion") || lowerInput.includes("tren") || lowerInput.includes("gaya")) {
+                    fakta = `Tren "${input}" adalah Fakta Sosial non-material. Arus globalisasi dan industri media bertindak sebagai struktur yang 'memaksa' remaja mengikutinya agar diterima dalam kelompok (konformitas).`;
+                    definisi = `Siswa memaknai "${input}" sebagai sarana mengekspresikan identitas, kebebasan, dan status sosial saat berinteraksi dengan teman sebayanya (Tindakan Sosial).`;
+                    perilaku = `Individu mengikuti "${input}" murni untuk mendapatkan apresiasi sosial (Reward), serta menghindari ejekan atau dikucilkan dari pergaulan (Punishment).`;
+                } else if (lowerInput.includes("game") || lowerInput.includes("hp") || lowerInput.includes("gadget") || lowerInput.includes("begadang") || lowerInput.includes("sosmed") || lowerInput.includes("online")) {
+                    fakta = `Fenomena "${input}" sangat dipengaruhi oleh masifnya industri teknologi (struktur luar) yang secara sistemik mengubah pola hidup, norma, dan ruang interaksi masyarakat.`;
+                    definisi = `Pelaku memaknai "${input}" sebagai sarana pelarian (escapism), hiburan, atau cara membangun relasi sosial virtual yang ia anggap bermakna.`;
+                    perilaku = `Tindakan "${input}" terus diulang karena individu mendapat kesenangan instan atau validasi online (Reward), meski berisiko mendapat teguran/sanksi (Punishment).`;
+                } else if (lowerInput.includes("tawuran") || lowerInput.includes("bolos") || lowerInput.includes("nakal") || lowerInput.includes("langgar") || lowerInput.includes("aturan")) {
+                    fakta = `Kasus "${input}" terjadi akibat disorganisasi sosial atau lemahnya kontrol institusi (sekolah/keluarga) sehingga gagal memaksa individu mematuhi norma yang berlaku (Anomie).`;
+                    definisi = `Pelaku memaknai "${input}" sebagai bentuk solidaritas in-group (kesetiakawanan) atau simbol keberanian untuk menunjukkan maskulinitasnya di hadapan kelompok.`;
+                    perilaku = `Pelaku melakukan "${input}" karena lingkungan sebayanya memberikan label 'keren' atau rasa hormat (Reward), sementara sanksi sekolah dianggap tidak menakutkan (Punishment lemah).`;
+                } else {
+                    // Analisis kritis generik jika tidak masuk kategori spesifik di atas
+                    fakta = `Dalam fenomena "${input}", struktur sosial, norma, atau institusi bertindak sebagai kekuatan eksternal (koersif). Individu terdorong menyesuaikan diri terlepas dari kehendak pribadinya.`;
+                    definisi = `Sosiolog melihat kasus "${input}" melalui makna subjektifnya. Ada motif internal, nilai personal, dan pertimbangan atas ekspektasi orang lain yang mendasari tindakan aktor sosial tersebut.`;
+                    perilaku = `Tindakan "${input}" merupakan hasil pertukaran sosial (stimulus-respons). Individu mengeksekusinya demi memaksimalkan ganjaran positif (Reward) dan meminimalkan kerugian sosial (Punishment).`;
+                }
+
+                currentAIData = { fakta, definisi, perilaku };
+                out.innerHTML = '<p class="font-bold text-sumut-green"><i class="fas fa-check-circle"></i> Analisis kritis selesai! Klik kapsul paradigma di atas.</p>';
+                
+                // Reset warna kapsul agar murid mengkliknya lagi
+                document.querySelectorAll('.sim-btn').forEach(b => { 
+                    b.className = 'sim-btn neo-btn bg-white text-sumut-black px-5 py-3 hover:bg-gray-100 transition'; 
+                });
+            }, 1500); // Waktu jeda simulasi berpikir 1.5 detik
+        }
+
+        function showAIData(type, btn) {
+            playClickSound();
+            document.querySelectorAll('.sim-btn').forEach(b => { b.className = 'sim-btn neo-btn bg-white text-sumut-black px-5 py-3 hover:bg-gray-100 transition'; });
+            const out = document.getElementById('sim-output');
+            if(type === 'fakta') {
+                btn.className = 'sim-btn neo-btn bg-sumut-green text-white px-5 py-3 shadow-[2px_2px_0_0_#1A1A1A] translate-y-1';
+                out.innerHTML = `<div><h4 class="font-heading font-bold text-2xl text-sumut-green mb-3">FAKTA SOSIAL</h4><p class="font-medium">"${currentAIData.fakta}"</p></div>`;
+            } else if(type === 'definisi') {
+                btn.className = 'sim-btn neo-btn bg-sumut-yellow text-sumut-black px-5 py-3 shadow-[2px_2px_0_0_#1A1A1A] translate-y-1';
+                out.innerHTML = `<div><h4 class="font-heading font-bold text-2xl text-sumut-yellow mb-3">DEFINISI SOSIAL</h4><p class="font-medium">"${currentAIData.definisi}"</p></div>`;
+            } else {
+                btn.className = 'sim-btn neo-btn bg-sumut-red text-white px-5 py-3 shadow-[2px_2px_0_0_#1A1A1A] translate-y-1';
+                out.innerHTML = `<div><h4 class="font-heading font-bold text-2xl text-sumut-red mb-3">PERILAKU SOSIAL</h4><p class="font-medium">"${currentAIData.perilaku}"</p></div>`;
+            }
+        }
+
+        // --- 20 QUIZ QUESTIONS (A-E) ---
+        const quizData = [
+            { q: "1. Revolusi Industri dan Revolusi Prancis memicu lahirnya sosiologi karena...", options: ["A. Muncul teknologi baru.", "B. Hancurnya tatanan sosial lama.", "C. Masyarakat butuh filsafat.", "D. Ilmuwan butuh laboratorium.", "E. Perkembangan agama."], ans: 1, type: "LOTS" },
+            { q: "2. Tokoh pencipta istilah 'Sosiologi' dan dikenal sebagai Bapak Sosiologi adalah...", options: ["A. Emile Durkheim", "B. Max Weber", "C. Karl Marx", "D. Auguste Comte", "E. Herbert Spencer"], ans: 3, type: "LOTS" },
+            { q: "3. 'Tindakan sosial' adalah objek kajian sosiologi menurut...", options: ["A. Auguste Comte", "B. Selo Soemardjan", "C. Max Weber", "D. Emile Durkheim", "E. B.F. Skinner"], ans: 2, type: "LOTS" },
+            { q: "4. (HOTS) Jika siswa bolos karena diajak teman (takut dikucilkan), menurut Weber tindakan ini disebut...", options: ["A. Alamiah", "B. Individu", "C. Fakta institusi", "D. Tindakan sosial", "E. Asosial"], ans: 3, type: "HOTS" },
+            { q: "5. Sifat Empiris pada sosiologi berarti...", options: ["A. Spekulatif rumit", "B. Observasi fakta nyata", "C. Menilai baik buruk", "D. Teori kuno", "E. Imajinatif"], ans: 1, type: "LOTS" },
+            { q: "6. (HOTS) Peneliti pinjol tidak menyalahkan peminjam, melainkan meneliti struktur kemiskinannya. Sifat sosiologi ini...", options: ["A. Teoretis", "B. Empiris", "C. Kumulatif", "D. Etis", "E. Nonetis"], ans: 4, type: "HOTS" },
+            { q: "7. Objek kajian sosiologi menurut Emile Durkheim adalah...", options: ["A. Imajinasi", "B. Fakta Sosial", "C. Tindakan", "D. Perilaku", "E. Realitas"], ans: 1, type: "LOTS" },
+            { q: "8. Bapak Sosiologi Indonesia pendiri FISIP UI adalah...", options: ["A. Soenario", "B. Hassan Shadily", "C. Selo Soemardjan", "D. Djody G", "E. Soerjono S"], ans: 2, type: "LOTS" },
+            { q: "9. Socius dalam kata sosiologi bermakna...", options: ["A. Ilmu", "B. Kawan/Masyarakat", "C. Aturan", "D. Fakta", "E. Alam"], ans: 1, type: "LOTS" },
+            { q: "10. Paradigma berfokus 'Reward and Punishment' adalah...", options: ["A. Definisi Sosial", "B. Konflik", "C. Perilaku Sosial", "D. Fakta Sosial", "E. Fungsional"], ans: 2, type: "LOTS" },
+            { q: "11. Sosiologi memberi data tahap perencanaan hingga evaluasi, ini fungsi untuk...", options: ["A. Penelitian", "B. Advokasi", "C. Pembangunan", "D. Teoretis", "E. Hukum"], ans: 2, type: "LOTS" },
+            { q: "12. Sosiolog di perusahaan menyelesaikan konflik karyawan berperan sebagai...", options: ["A. Pendidik", "B. Riset", "C. Konsultan", "D. Praktisi", "E. Politisi"], ans: 3, type: "LOTS" },
+            { q: "13. (HOTS) Paradigma Fakta Sosial melihat kemiskinan karena sistem. Perilaku Sosial melihatnya karena...", options: ["A. Individu pasrah nasib", "B. Kurang reward (malas)", "C. Penindasan kelas", "D. Lemah pendidikan", "E. Takdir"], ans: 1, type: "HOTS" },
+            { q: "14. Buku The Rules of Sociological Method ditulis oleh...", options: ["A. Max Weber", "B. Auguste Comte", "C. Talcott Parsons", "D. Emile Durkheim", "E. George Ritzer"], ans: 3, type: "LOTS" },
+            { q: "15. (HOTS) Teori evolusi biologi Darwin diadaptasi Spencer jadi evolusi sosial, membuktikan sifat...", options: ["A. Nonetis", "B. Empiris", "C. Spekulatif", "D. Kumulatif", "E. Dinamis"], ans: 3, type: "HOTS" },
+            { q: "16. Kajian pokok C. Wright Mills adalah...", options: ["A. Imajinasi Sosiologi", "B. Fakta Sosial", "C. Tindakan Sosial", "D. Konflik", "E. Struktur"], ans: 0, type: "LOTS" },
+            { q: "17. Talcott Parsons tokoh dari...", options: ["A. Prancis", "B. Inggris", "C. Jerman", "D. Indonesia", "E. Amerika Serikat"], ans: 4, type: "LOTS" },
+            { q: "18. Paradigma Definisi Sosial banyak dari pemikiran...", options: ["A. Durkheim", "B. Max Weber", "C. Skinner", "D. Comte", "E. Marx"], ans: 1, type: "LOTS" },
+            { q: "19. (HOTS) Memprediksi dampak kebijakan relokasi pasar, ini peran sosiolog sebagai...", options: ["A. Praktisi", "B. Guru", "C. Konsultan", "D. Peneliti", "E. Birokrat"], ans: 2, type: "HOTS" },
+            { q: "20. Membela masyarakat marjinal dengan data (advokasi) merupakan...", options: ["A. Fungsi Advokasi", "B. Fungsi Pembangunan", "C. Evaluasi", "D. Pendidikan", "E. Riset"], ans: 0, type: "LOTS" }
+        ];
+
+        let currentQuestion = 0, scoreQuiz = 0;
+        function loadQuestion() {
+            if(currentQuestion >= quizData.length) { showResults(); return; }
+            quizActive = true;
+            document.getElementById('quiz-progress-text').innerText = `Soal ${currentQuestion + 1}/20`;
+            document.getElementById('quiz-progress-bar').style.width = `${((currentQuestion + 1) / 20) * 100}%`;
+            
+            const q = quizData[currentQuestion];
+            document.getElementById('quiz-badge-hots').className = q.type === "HOTS" ? "inline-block bg-sumut-red text-white px-3 py-1 rounded-full text-xs font-bold border-2 border-sumut-black mb-4" : "hidden";
+            document.getElementById('question-text').innerText = q.q;
+            
+            const optCont = document.getElementById('options-container'); optCont.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left px-5 py-4 rounded-xl bg-white border-2 border-sumut-black font-semibold transition hover:bg-sumut-yellow shadow-[2px_2px_0_0_#1A1A1A]';
+                btn.innerText = opt; btn.onclick = () => checkAnswer(idx, btn, q.ans);
+                optCont.appendChild(btn);
+            });
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+        }
+
+        function checkAnswer(selectedIdx, btnEl, correctIdx) {
+            if(!quizActive) return; quizActive = false;
+            const fb = document.getElementById('quiz-feedback');
+            fb.classList.remove('hidden', 'bg-sumut-green', 'bg-sumut-red', 'text-white');
+            const allBtns = document.getElementById('options-container').children;
+            allBtns[correctIdx].classList.replace('bg-white', 'bg-sumut-green'); allBtns[correctIdx].classList.add('text-white');
+
+            if(selectedIdx === correctIdx) {
+                scoreQuiz++; addGlobalScore(10); playCorrectSound();
+                fb.className = 'mt-6 p-4 border-2 border-sumut-black rounded-xl font-bold text-center bg-sumut-green text-white shadow-[4px_4px_0_0_#1A1A1A]';
+                fb.innerHTML = '<i class="fas fa-check-circle"></i> TEPAT!';
+            } else {
+                playWrongSound();
+                btnEl.classList.replace('bg-white', 'bg-sumut-red'); btnEl.classList.add('text-white');
+                fb.className = 'mt-6 p-4 border-2 border-sumut-black rounded-xl font-bold text-center bg-sumut-red text-white shadow-[4px_4px_0_0_#1A1A1A]';
+                fb.innerHTML = '<i class="fas fa-times-circle"></i> KELIRU!';
+            }
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+        function nextQuestion() { playClickSound(); currentQuestion++; loadQuestion(); }
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-container').classList.remove('hidden');
+            document.getElementById('final-score').innerText = scoreQuiz * 5; // 20 * 5 = 100
+            if(scoreQuiz >= 15) { playWinSound(); confetti({ particleCount: 200, spread: 90 }); }
+        }
+        function resetQuiz() { playClickSound(); currentQuestion = 0; scoreQuiz = 0; document.getElementById('result-container').classList.add('hidden'); document.getElementById('quiz-container').classList.remove('hidden'); loadQuestion(); }
+        loadQuestion();
+
+        // --- MINI GAME (Multi-Level) ---
+        const levels = [
+            { id: 1, title: "Klasifikasi Tokoh", instruction: "Ketuk tokoh lalu masukkan ke asal geografisnya!", z1: { label: "DUNIA", color: "sumut-red" }, z2: { label: "INDONESIA", color: "sumut-green" },
+              data: [ { id: 'l1_1', name: 'Auguste Comte', type: 'Z1' }, { id: 'l1_2', name: 'Selo Soemardjan', type: 'Z2' }, { id: 'l1_3', name: 'Max Weber', type: 'Z1' }, { id: 'l1_4', name: 'Emile Durkheim', type: 'Z1' }, { id: 'l1_5', name: 'Soenario Kolopaking', type: 'Z2' }] },
+            { id: 2, title: "Klasifikasi Paradigma (HOTS)", instruction: "Baca ciri-cirinya, masuk ke paradigma mana?", z1: { label: "FAKTA SOSIAL", color: "sumut-green" }, z2: { label: "DEFINISI SOSIAL", color: "sumut-yellow" },
+              data: [ { id: 'l2_1', name: 'Aturan sekolah', type: 'Z1' }, { id: 'l2_2', name: 'Makna gaya hidup', type: 'Z2' }, { id: 'l2_3', name: 'Tradisi adat', type: 'Z1' }, { id: 'l2_4', name: 'Memilih jurusan', type: 'Z2' }] }
+        ];
+
+        let currentLevel = 1, unplacedItems = [], selectedItem = null;
+
+        function initGameLevel(levelNum) {
+            currentLevel = levelNum; const lvl = levels[currentLevel - 1];
+            unplacedItems = [...lvl.data]; selectedItem = null;
+            document.getElementById('game-level-indicator').innerText = `LEVEL ${currentLevel}`;
+            document.getElementById('game-instruction').innerText = lvl.instruction;
+            
+            const z1 = document.getElementById('zone-1'); const z2 = document.getElementById('zone-2');
+            z1.className = `bg-white border-4 border-dashed border-${lvl.z1.color} rounded-3xl p-4 min-h-[200px] flex flex-col items-center cursor-pointer transition relative hover:bg-gray-50`;
+            z2.className = `bg-white border-4 border-dashed border-${lvl.z2.color} rounded-3xl p-4 min-h-[200px] flex flex-col items-center cursor-pointer transition relative hover:bg-gray-50`;
+            
+            document.getElementById('label-zone-1').className = `absolute -top-5 bg-${lvl.z1.color} text-${lvl.z1.color === 'sumut-yellow' ? 'black' : 'white'} border-[3px] border-sumut-black font-heading font-bold px-6 py-2 rounded-full shadow-[2px_2px_0_0_#1A1A1A]`;
+            document.getElementById('label-zone-1').innerText = lvl.z1.label;
+            document.getElementById('label-zone-2').className = `absolute -top-5 bg-${lvl.z2.color} text-${lvl.z2.color === 'sumut-yellow' ? 'black' : 'white'} border-[3px] border-sumut-black font-heading font-bold px-6 py-2 rounded-full shadow-[2px_2px_0_0_#1A1A1A]`;
+            document.getElementById('label-zone-2').innerText = lvl.z2.label;
+
+            document.getElementById('list-zone-1').innerHTML = ''; document.getElementById('list-zone-2').innerHTML = '';
+            document.getElementById('game-feedback').innerHTML = '';
+            document.getElementById('btn-next-level').classList.add('hidden'); document.getElementById('btn-reset-game').classList.add('hidden');
+            renderGameItems();
+        }
+
+        function renderGameItems() {
+            const container = document.getElementById('game-items'); container.innerHTML = '';
+            if(unplacedItems.length === 0) {
+                container.innerHTML = '<p class="text-sumut-green font-heading font-bold text-3xl py-4">BERHASIL!</p>';
+                playWinSound();
+                if(currentLevel < levels.length) { document.getElementById('btn-next-level').classList.remove('hidden'); } 
+                else { document.getElementById('game-feedback').innerHTML = '<span class="text-sumut-green">TAMAT! 🎉</span>'; document.getElementById('btn-reset-game').classList.remove('hidden'); confetti(); }
+                return;
+            }
+            unplacedItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'neo-btn bg-white text-sumut-black px-4 py-2 text-sm cursor-pointer hover:bg-sumut-yellow';
+                div.innerText = item.name;
+                if(selectedItem && selectedItem.id === item.id) { div.classList.replace('bg-white', 'bg-sumut-yellow'); div.classList.add('translate-y-1', 'shadow-[0_0_0_0_#1A1A1A]'); }
+                div.onclick = () => { playClickSound(); selectedItem = (selectedItem && selectedItem.id === item.id) ? null : item; renderGameItems(); };
+                container.appendChild(div);
+            });
+        }
+
+        function dropToZone(zoneId) {
+            if(!selectedItem) return;
+            const fb = document.getElementById('game-feedback'); const lvl = levels[currentLevel - 1];
+            if(selectedItem.type === zoneId) {
+                playCorrectSound(); addGlobalScore(20);
+                fb.innerHTML = `<span class="text-sumut-green"><i class="fas fa-check"></i> BENAR!</span>`;
+                const div = document.createElement('div');
+                const zColor = zoneId === 'Z1' ? lvl.z1.color : lvl.z2.color;
+                const txtColor = zColor === 'sumut-yellow' ? 'text-black' : 'text-white';
+                div.className = `px-3 py-1 ${txtColor} bg-${zColor} border-2 border-sumut-black rounded-full text-xs font-bold shadow-[2px_2px_0_0_#1A1A1A] mb-1`;
+                div.innerText = selectedItem.name;
+                document.getElementById(`list-zone-${zoneId==='Z1'?1:2}`).appendChild(div);
+                unplacedItems = unplacedItems.filter(i => i.id !== selectedItem.id);
+            } else { playWrongSound(); fb.innerHTML = `<span class="text-sumut-red"><i class="fas fa-times"></i> KELIRU!</span>`; }
+            selectedItem = null; renderGameItems();
+        }
+        function nextLevelGame() { playClickSound(); initGameLevel(currentLevel + 1); }
+        initGameLevel(1);
+
+        // --- REFLEKSI (WORKING DELETE) ---
+        function addRefleksi() {
+            const name = document.getElementById('ref-name').value.trim();
+            const msg = document.getElementById('ref-msg').value.trim();
+            if(!name || !msg) { alert("Isi form dulu!"); return; }
+            playClickSound(); addGlobalScore(50);
+            
+            const board = document.getElementById('board-area');
+            const note = document.createElement('div');
+            const rotate = (Math.random() * 6) - 3; 
+            const isYellow = Math.random() > 0.5;
+            
+            note.className = `sticky-note p-4 rounded-sm w-48 font-body fade-in ${isYellow ? 'bg-sumut-yellow' : 'bg-white'}`;
+            note.style.transform = `rotate(${rotate}deg)`;
+            
+            // Working direct element removal! No confirm() blocks.
+            note.innerHTML = `
+                <div class="delete-btn" onclick="this.parentElement.remove(); playClickSound();" title="Hapus">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <div class="text-xs font-bold border-b-2 border-sumut-black/20 pb-2 mb-3 text-sumut-black flex justify-between items-center pr-4">
+                    <span class="truncate">${name}</span>
+                </div>
+                <p class="text-sm font-medium leading-snug">${msg}</p>
+            `;
+            board.prepend(note);
+            document.getElementById('ref-name').value = ''; document.getElementById('ref-msg').value = '';
+        }
+    </script>
+</body>
+</html>
